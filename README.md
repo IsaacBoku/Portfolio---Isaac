@@ -6,18 +6,16 @@ Este es un pequeño museo virtual donde puedes caminar, ver y probar directament
 
 ### 🎯 Características
 - Totalmente en 3D y navegable con WASD + ratón  
-- Todos los juegos con sus builds WebGL integradas  
 - Información detallada de cada proyecto  
 - Diseño limpio y optimizado para WebGL  
-- ¡Funciona en móvil también!
 
 ### 🚀 Juega ahora
-[**¡Jugar al Portfolio Interactivo aquí!**](https://isaacboku.itch.io/portfolio-isaac)  
+[**¡Jugar al Portfolio Interactivo aquí!**](https://isaacboku.itch.io/portfolio)  
 (Recomendado en PC para la mejor experiencia)
 
 ### 📂 Código fuente
 Este repositorio contiene:
-- El proyecto completo de Unity (versión 2022.3.XX)  
+- El proyecto completo de Unity (versión 6000.3.1f1)  
 - Scripts personalizados del museo  
 - Sistemas de carga de builds WebGL  
 - UI y optimizaciones específicas
