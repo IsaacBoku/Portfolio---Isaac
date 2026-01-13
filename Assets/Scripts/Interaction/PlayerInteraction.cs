@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    public float range = 3f;
+    public float _interactRange = 3f;
     public TextMeshProUGUI promptText;
     public LayerMask interactableLayer; // Filtro para solo detectar objetos en esta capa
+    [SerializeField] private Transform _camTransform;
 
     private StarterAssetsInputs playerInputHandler;
     private Camera mainCamera;
@@ -21,11 +22,13 @@ public class PlayerInteraction : MonoBehaviour
     void Update()
     {
         // Lanzamos el rayo desde el centro de la cámara hacia adelante
-        Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Ray ray = new Ray(_camTransform.position, _camTransform.forward);
         RaycastHit hit;
 
+        Debug.DrawRay(ray.origin, ray.direction * _interactRange, Color.red);
+
         // El rayo solo chocará con objetos dentro de 'interactableLayer'
-        if (Physics.Raycast(ray, out hit, range, interactableLayer))
+        if (Physics.Raycast(ray, out hit, _interactRange, interactableLayer))
         {
             if (hit.collider.TryGetComponent(out IInteractable interactable))
             {
