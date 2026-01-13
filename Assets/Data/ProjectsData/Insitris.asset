@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f62973595852574c80ea8a6c41a5d36, type: 3}
+  m_Name: Insitris
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectData
+  projectName: Insitris
+  projectDescription: 'HIGHLIGHTS:
+
+
+    Award Winning: Winner of "Best Narrative"
+    award.
+
+
+    World Building: Technical implementation of narrative-driven events.
+
+
+    Atmosphere:
+    Systems designed for immersive, story-rich exploration.
+
+
+    "An award-winning
+    narrative experience built with immersive systems."'
+  projectScreenshot: {fileID: 21300000, guid: e135f62b2c2e49a49b682484711a5618, type: 3}
+  itchIoUrl: https://adrianhdez.itch.io/insitris
+  techStack: Unity, C#
+  role: Gameplay & Systems Programmer
+  isImageNative: 1

@@ -1,88 +1,71 @@
 using System.Collections;
 using UnityEngine;
 
-public class DoorInteractive : MonoBehaviour, IInteractable
+public class DoorInteractive : MonoBehaviour
 {
-    [Header("Door Settings")]
+    [Header("Door Lift Settings")]
     [SerializeField] private bool isOpen;
-    [SerializeField] private float openAngle;
-    [SerializeField] private float duration;
+    [SerializeField] private float liftHeight = 3f; // Cuántas unidades sube
+    [SerializeField] private float duration = 1.0f; // Tiempo que tarda en subir
 
-    private bool isRotating;
+    private bool isMoving;
+    private Vector3 closedPosition;
+    private Vector3 openedPosition;
 
     private void Start()
     {
-        openAngle = 90f;
-        duration = 0.5f;
+        // Guardamos la posición inicial como la "cerrada"
+        closedPosition = transform.localPosition;
+        // Calculamos la posición "abierta" sumando la altura al eje Y
+        openedPosition = closedPosition + new Vector3(0, liftHeight, 0);
     }
-    public void Interact()
-    {
-        if(isRotating) return;
 
-        if (isOpen)
-        {
-            CloseDoor();
-        }
-        else
-        {
+    // Método para ser llamado desde tu sistema de interacción
+    public void ToggleDoor()
+    {
+        if (isMoving) return; // Evita que se solapen movimientos
+
+        if (!isOpen)
             OpenDoor();
-        }
-    }
-    public string GetInteractionText()
-    {
-        if(isRotating) return "...";
-        return isOpen ? "Close Door" : "Open Door";
+        else
+            CloseDoor();
     }
 
-    private void OpenDoor()
+    public void OpenDoor()
     {
         isOpen = true;
-
-        // Quaternion.Euler convierte grados (x,y,z) a la matemática compleja de Unity (Cuaterniones)
-        Quaternion targetRotation  = Quaternion.Euler(0, openAngle, 0) * transform.localRotation;
-
-        // Iniciamos la Corutina (el proceso en segundo plano)
-        StartCoroutine(AnimateDoor(targetRotation));
-
+        StartCoroutine(AnimateDoor(openedPosition));
     }
 
-    private void CloseDoor()
+    public void CloseDoor()
     {
         isOpen = false;
-        // Para cerrar, simplemente volvemos a la rotación original o restamos
-        // Una forma segura es revertir el ángulo
-        Quaternion targetRotation = Quaternion.Euler(0, -openAngle, 0) * transform.localRotation;
-
-        StartCoroutine(AnimateDoor(targetRotation));
+        StartCoroutine(AnimateDoor(closedPosition));
     }
 
-
-    private IEnumerator AnimateDoor(Quaternion targetRotation)
+    private IEnumerator AnimateDoor(Vector3 targetPosition)
     {
-        isRotating = true; // Bloqueamos interacción
-
-        Quaternion startRotation = transform.localRotation;
+        isMoving = true;
+        Vector3 startPosition = transform.localPosition;
         float timeElapsed = 0;
 
         while (timeElapsed < duration)
         {
-            // Movemos el tiempo hacia adelante
             timeElapsed += Time.deltaTime;
-
-            // Calculamos el porcentaje completado (de 0 a 1)
             float t = timeElapsed / duration;
 
-            // Slerp = Spherical Linear Interpolation (Interpolación esférica)
-            // Es la forma correcta de rotar suavemente entre dos puntos
-            transform.localRotation = Quaternion.Slerp(startRotation, targetRotation, t);
+            // Usamos SmoothStep para que el movimiento no sea brusco (aceleración/deceleración suave)
+            t = Mathf.SmoothStep(0f, 1f, t);
 
-            yield return null; // Esperamos al siguiente frame
+            // Lerp = Linear Interpolation para posiciones
+            transform.localPosition = Vector3.Lerp(startPosition, targetPosition, t);
+
+            yield return null;
         }
 
-        // Aseguramos que al final quede exacto (para corregir decimales pequeños)
-        transform.localRotation = targetRotation;
+        transform.localPosition = targetPosition;
+        isMoving = false;
 
-        isRotating = false; // Desbloqueamos interacción
-        Debug.Log(isOpen ? "Puerta abierta completamente." : "Puerta cerrada completamente.");
+        Debug.Log(isOpen ? "Puerta subida (Abierta)." : "Puerta bajada (Cerrada).");
     }
 }

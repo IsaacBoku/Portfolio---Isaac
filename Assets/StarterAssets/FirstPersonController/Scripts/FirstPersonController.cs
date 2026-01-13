@@ -11,7 +11,9 @@ namespace StarterAssets
 #endif
 	public class FirstPersonController : MonoBehaviour
 	{
-		[Header("Player")]
+        private bool _inputDisabled = false;
+
+        [Header("Player")]
 		[Tooltip("Move speed of the character in m/s")]
 		public float MoveSpeed = 4.0f;
 		[Tooltip("Sprint speed of the character in m/s")]
@@ -95,7 +97,34 @@ namespace StarterAssets
 			}
 		}
 
-		private void Start()
+        private void OnEnable()
+        {
+            // Nos suscribimos al evento que creamos en el UIManager
+            UIManager.OnPanelToggled += HandleInputState;
+        }
+
+        private void OnDisable()
+        {
+            // Siempre nos desuscribimos al destruir o desactivar el objeto
+            UIManager.OnPanelToggled -= HandleInputState;
+        }
+
+        private void HandleInputState(bool isUIActive)
+        {
+            _inputDisabled = isUIActive;
+
+            // Si la UI está activa, "limpiamos" los inputs para que el personaje
+            // no se quede caminando infinitamente mientras el panel está abierto.
+            if (_inputDisabled)
+            {
+                _input.move = Vector2.zero;
+                _input.look = Vector2.zero;
+                _input.jump = false;
+                _input.sprint = false;
+            }
+        }
+
+        private void Start()
 		{
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<StarterAssetsInputs>();
@@ -112,14 +141,18 @@ namespace StarterAssets
 
 		private void Update()
 		{
-			JumpAndGravity();
+            if (_inputDisabled) return;
+
+            JumpAndGravity();
 			GroundedCheck();
 			Move();
 		}
 
 		private void LateUpdate()
 		{
-			CameraRotation();
+            if (_inputDisabled) return;
+
+            CameraRotation();
 		}
 
 		private void GroundedCheck()

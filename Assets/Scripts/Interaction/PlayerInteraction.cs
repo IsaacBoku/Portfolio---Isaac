@@ -6,39 +6,65 @@ public class PlayerInteraction : MonoBehaviour
 {
     public float _interactRange = 3f;
     public TextMeshProUGUI promptText;
-    public LayerMask interactableLayer; // Filtro para solo detectar objetos en esta capa
+    public LayerMask interactableLayer;
     [SerializeField] private Transform _camTransform;
 
     private StarterAssetsInputs playerInputHandler;
-    private Camera mainCamera;
+    private bool _isUIActive = false; // Nueva variable de control
 
     private void Start()
     {
-        // Buscamos el componente en el objeto raíz del jugador si no está en la cámara
         playerInputHandler = GetComponentInParent<StarterAssetsInputs>();
-        mainCamera = Camera.main;
+        if (promptText != null) promptText.text = "";
+    }
+
+    // 1. Nos suscribimos al evento del UIManager
+    private void OnEnable()
+    {
+        UIManager.OnPanelToggled += HandleUIState;
+    }
+
+    private void OnDisable()
+    {
+        UIManager.OnPanelToggled -= HandleUIState;
+    }
+
+    // 2. Método que reacciona al cambio de estado de la UI
+    private void HandleUIState(bool isActive)
+    {
+        _isUIActive = isActive;
+
+        // Si la UI se abre, limpiamos el texto inmediatamente
+        if (_isUIActive)
+        {
+            promptText.text = "";
+        }
     }
 
     void Update()
     {
-        // Lanzamos el rayo desde el centro de la cámara hacia adelante
+        // 3. Si la UI está activa, no procesamos ni el Raycast ni el Input
+        if (_isUIActive) return;
+
         Ray ray = new Ray(_camTransform.position, _camTransform.forward);
         RaycastHit hit;
 
         Debug.DrawRay(ray.origin, ray.direction * _interactRange, Color.red);
 
-        // El rayo solo chocará con objetos dentro de 'interactableLayer'
         if (Physics.Raycast(ray, out hit, _interactRange, interactableLayer))
         {
             if (hit.collider.TryGetComponent(out IInteractable interactable))
             {
                 promptText.text = "[E] " + interactable.GetInteractionText();
 
-                // Usamos el sistema de inputs de Starter Assets
                 if (playerInputHandler.GetInteraction())
                 {
                     interactable.Interact();
                 }
+            }
+            else
+            {
+                promptText.text = "";
             }
         }
         else

@@ -21,13 +21,16 @@ namespace StarterAssets
 		public bool cursorInputForLook = true;
 
 		InputAction m_Interaction;
+		InputAction m_EscapeUI;
 
 
         private void Start()
         {
             m_Interaction = InputSystem.actions.FindAction("Player/Interaction");
+			m_EscapeUI = InputSystem.actions.FindAction("Player/Escape");
 
-			m_Interaction.Enable();
+            m_Interaction.Enable();
+			m_EscapeUI.Enable();
         }
         public bool CanProcessInput()
         {
@@ -43,6 +46,15 @@ namespace StarterAssets
             }
 
             return false;
+        }
+
+		public bool GetEscapeUI()
+		{
+			if (m_EscapeUI.WasPressedThisFrame())
+			{
+				return true;
+			}
+			return false;
         }
 
 
