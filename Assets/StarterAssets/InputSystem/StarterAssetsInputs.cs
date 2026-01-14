@@ -22,15 +22,18 @@ namespace StarterAssets
 
 		InputAction m_Interaction;
 		InputAction m_EscapeUI;
+		InputAction m_ScrollWeel;
 
 
         private void Start()
         {
             m_Interaction = InputSystem.actions.FindAction("Player/Interaction");
 			m_EscapeUI = InputSystem.actions.FindAction("Player/Escape");
+			m_ScrollWeel = InputSystem.actions.FindAction("Player/ScrollWheel");
 
             m_Interaction.Enable();
 			m_EscapeUI.Enable();
+			m_ScrollWeel.Enable();
         }
         public bool CanProcessInput()
         {
@@ -55,6 +58,23 @@ namespace StarterAssets
 				return true;
 			}
 			return false;
+        }
+
+		public bool GetScrollWeel(out float scrollValue)
+		{
+            scrollValue = 0f;
+            if (CanProcessInput())
+            {
+                // CAMBIO: Leemos Vector2 y usamos la 'y'
+                Vector2 scrollVector = m_ScrollWeel.ReadValue<Vector2>();
+                scrollValue = scrollVector.y;
+
+                if (scrollValue != 0f)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
 

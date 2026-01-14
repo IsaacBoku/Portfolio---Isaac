@@ -16,6 +16,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button _linkButton;
     [SerializeField] private Image _projectImageHolder;
 
+
     // Eventos para que el juego sepa cuándo la UI está activa
     public static event Action<bool> OnPanelToggled;
 

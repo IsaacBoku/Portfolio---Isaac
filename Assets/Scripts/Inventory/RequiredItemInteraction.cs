@@ -4,7 +4,7 @@ using UnityEngine.Events;
 public class RequiredItemInteraction : MonoBehaviour,IInteractable
 {
     [Header("Requisito")]
-    [SerializeField] private string requiredID;
+    [SerializeField] private string requiredID; // El ID del item que debe estar seleccionado
 
     [Header("Eventos de Respuesta")]
     public UnityEvent OnSuccess;
@@ -12,21 +12,31 @@ public class RequiredItemInteraction : MonoBehaviour,IInteractable
 
     public void Interact()
     {
-        // Comprobamos con el Singleton si tenemos el item
-        if (InventoryManager.Instance.HasItem(requiredID))
+        // 1. Buscamos el InventoryUI para saber qué hay seleccionado
+        // (Si usas un Singleton tipo UIManager.Instance.inventoryUI, cámbialo aquí)
+        InventoryUI ui = FindFirstObjectByType<InventoryUI>();
+        ItemData selectedItem = ui != null ? ui.GetSelectedItem() : null;
+
+        // 2. Comprobamos si el item seleccionado existe y si su ID coincide
+        if (selectedItem != null && selectedItem.itemID == requiredID)
         {
-            // 1. Ejecutamos la acción (Abrir puerta, activar consola, etc.)
+            Debug.Log($"Éxito: {requiredID} usado correctamente.");
+
+            // Ejecutamos la acción (Abrir puerta, etc.)
             OnSuccess?.Invoke();
 
-            // 2. Intentamos consumirlo (el Manager ya sabe si debe borrarlo o no)
+            // Consumimos el item del inventario real
             InventoryManager.Instance.ConsumeItem(requiredID);
         }
         else
         {
+            // Si no tiene nada seleccionado o el ID no coincide
             OnFail?.Invoke();
-            Debug.Log("No tienes el objeto necesario.");
+
+            string mensaje = (selectedItem == null) ? "No tienes nada seleccionado." : $"El objeto {selectedItem.itemName} no sirve aquí.";
+            Debug.Log(mensaje);
         }
     }
 
-    public string GetInteractionText() => "Usar objeto necesario";
+    public string GetInteractionText() => "Usar objeto seleccionado";
 }

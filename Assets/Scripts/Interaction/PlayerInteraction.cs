@@ -1,16 +1,21 @@
 using StarterAssets;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerInteraction : MonoBehaviour
 {
+    [Header("Configuración de Raycast")]
     public float _interactRange = 3f;
-    public TextMeshProUGUI promptText;
     public LayerMask interactableLayer;
     [SerializeField] private Transform _camTransform;
 
+    [Header("Referencias UI")]
+    public TextMeshProUGUI promptText;
+    [SerializeField] private Image cursorDot; // El puntito del centro
+
     private StarterAssetsInputs playerInputHandler;
-    private bool _isUIActive = false; // Nueva variable de control
+    private bool _isUIActive = false;
 
     private void Start()
     {
@@ -18,43 +23,39 @@ public class PlayerInteraction : MonoBehaviour
         if (promptText != null) promptText.text = "";
     }
 
-    // 1. Nos suscribimos al evento del UIManager
-    private void OnEnable()
-    {
-        UIManager.OnPanelToggled += HandleUIState;
-    }
+    private void OnEnable() => UIManager.OnPanelToggled += HandleUIState;
+    private void OnDisable() => UIManager.OnPanelToggled -= HandleUIState;
 
-    private void OnDisable()
-    {
-        UIManager.OnPanelToggled -= HandleUIState;
-    }
-
-    // 2. Método que reacciona al cambio de estado de la UI
     private void HandleUIState(bool isActive)
     {
         _isUIActive = isActive;
 
-        // Si la UI se abre, limpiamos el texto inmediatamente
+        // Si la UI está activa (Inventario, Pausa), ocultamos todo
         if (_isUIActive)
         {
             promptText.text = "";
+            if (cursorDot != null) cursorDot.gameObject.SetActive(false);
+        }
+        else
+        {
+            // Al cerrar UI, volvemos a mostrar el punto por defecto
+            if (cursorDot != null) cursorDot.gameObject.SetActive(true);
         }
     }
 
     void Update()
     {
-        // 3. Si la UI está activa, no procesamos ni el Raycast ni el Input
         if (_isUIActive) return;
 
         Ray ray = new Ray(_camTransform.position, _camTransform.forward);
         RaycastHit hit;
 
-        Debug.DrawRay(ray.origin, ray.direction * _interactRange, Color.red);
-
         if (Physics.Raycast(ray, out hit, _interactRange, interactableLayer))
         {
             if (hit.collider.TryGetComponent(out IInteractable interactable))
             {
+                // LÓGICA PEDIDA: Quitamos el punto y ponemos el texto
+                UpdateCursorVisibility(false);
                 promptText.text = "[E] " + interactable.GetInteractionText();
 
                 if (playerInputHandler.GetInteraction())
@@ -64,12 +65,30 @@ public class PlayerInteraction : MonoBehaviour
             }
             else
             {
-                promptText.text = "";
+                ResetInteraction();
             }
         }
         else
         {
-            promptText.text = "";
+            ResetInteraction();
         }
+    }
+
+    private void UpdateCursorVisibility(bool isVisible)
+    {
+        if (cursorDot == null) return;
+
+        // Solo actuamos si el estado actual es diferente al deseado (optimización)
+        if (cursorDot.gameObject.activeSelf != isVisible)
+        {
+            cursorDot.gameObject.SetActive(isVisible);
+        }
+    }
+
+    private void ResetInteraction()
+    {
+        promptText.text = "";
+        // Si no estamos mirando nada interactuable, el punto vuelve a aparecer
+        UpdateCursorVisibility(true);
     }
 }
