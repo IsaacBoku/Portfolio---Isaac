@@ -1,6 +1,7 @@
 using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,9 +12,13 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Transform container;
     [SerializeField] private GameObject inventoryPanel;
 
+    [Header("Texto de Nombre")]
+    [SerializeField] private TextMeshProUGUI itemNameText; // Arrastra aquí el nuevo texto
+    [SerializeField] private float textDisplayTime = 2f;   // Cuánto tarda en desaparecer
+
     [Header("Selección Visual")]
     [SerializeField] private RectTransform selectionHighlight;
-    [SerializeField] private float smoothSpeed = 15f; // Velocidad del movimiento
+    [SerializeField] private float smoothSpeed = 15f; 
 
     private class InventorySlot
     {
@@ -27,13 +32,17 @@ public class InventoryUI : MonoBehaviour
     private float _scrollCooldown = 0.15f;
     private float _nextScrollTime;
 
-    private Coroutine _moveRoutine; // Para controlar la animación actual
+    private Coroutine _moveRoutine; 
+    private Coroutine _textFadeRoutine;
 
     private void Start()
     {
         playerInput = FindFirstObjectByType<StarterAssetsInputs>();
         if (inventoryPanel != null) inventoryPanel.SetActive(false);
         if (selectionHighlight != null) selectionHighlight.gameObject.SetActive(false);
+
+        // Empezamos con el texto invisible
+        if (itemNameText != null) itemNameText.alpha = 0;
     }
 
     private void Update()
@@ -53,6 +62,41 @@ public class InventoryUI : MonoBehaviour
     {
         _selectedIndex = (_selectedIndex + direction + _slots.Count) % _slots.Count;
         UpdateVisualSelection();
+
+        // Lógica de nombre: mostramos el nombre cada vez que cambiamos
+        ShowItemName(_slots[_selectedIndex].data.itemName);
+    }
+
+    private void ShowItemName(string name)
+    {
+        if (itemNameText == null) return;
+
+        itemNameText.text = name;
+
+        if (_textFadeRoutine != null) StopCoroutine(_textFadeRoutine);
+        _textFadeRoutine = StartCoroutine(FadeTextRoutine());
+    }
+
+    private IEnumerator FadeTextRoutine()
+    {
+        // Aparece instantáneamente (o podrías hacerle un fade in también)
+        itemNameText.alpha = 1;
+
+        // Espera el tiempo configurado
+        yield return new WaitForSeconds(textDisplayTime);
+
+        // Desvanecimiento suave (Fade Out)
+        float elapsed = 0;
+        float fadeDuration = 0.5f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            itemNameText.alpha = Mathf.Lerp(1, 0, elapsed / fadeDuration);
+            yield return null;
+        }
+
+        itemNameText.alpha = 0;
+        _textFadeRoutine = null;
     }
 
     private void UpdateVisualSelection()
@@ -60,12 +104,11 @@ public class InventoryUI : MonoBehaviour
         if (_slots.Count == 0 || selectionHighlight == null)
         {
             if (selectionHighlight != null) selectionHighlight.gameObject.SetActive(false);
+            if (itemNameText != null) itemNameText.alpha = 0;
             return;
         }
 
         selectionHighlight.gameObject.SetActive(true);
-
-        // Si ya hay una animación en curso, la detenemos para empezar la nueva
         if (_moveRoutine != null) StopCoroutine(_moveRoutine);
         _moveRoutine = StartCoroutine(MoveSelectionRoutine(_slots[_selectedIndex].iconObj.transform));
     }
@@ -119,10 +162,10 @@ public class InventoryUI : MonoBehaviour
         if (_slots.Count == 1)
         {
             _selectedIndex = 0;
-            // La primera vez lo ponemos directo sin animación
             selectionHighlight.gameObject.SetActive(true);
             selectionHighlight.SetParent(newIcon.transform);
             selectionHighlight.localPosition = Vector3.zero;
+            ShowItemName(item.itemName); // <--- Mostrar nombre al recoger el primero
         }
     }
 

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d05f1289cb58384890e4874a91cf99c, type: 3}
-  m_Name: Key 1
+  m_Name: Moneda_1
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemID: ID_Key2
-  itemName: Key
-  icon: {fileID: 95467374, guid: 048bd5bd87ab06640a280f6cebb06d1b, type: 3}
+  itemID: ID_Moneda_1
+  itemName: Coin Blue
+  icon: {fileID: -932434808, guid: a676a74ed34678e458053d18423052fc, type: 3}
   description: 
-  isConsumable: 1
+  isConsumable: 0

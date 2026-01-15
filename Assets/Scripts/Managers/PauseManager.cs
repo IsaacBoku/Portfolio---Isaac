@@ -27,6 +27,7 @@ public class PauseManager : MonoBehaviour
             if (_quitButton != null) _quitButton.SetActive(false);
             if (_graphicsSettings != null) _graphicsSettings.SetActive(false);
 #endif
+        Cursor.visible = false;
     }
 
     private void Update()
@@ -42,26 +43,33 @@ public class PauseManager : MonoBehaviour
     public void Pause()
     {
         IsPaused = true;
-        Time.timeScale = 0f; // Detenemos el tiempo
+        //Time.timeScale = 0f; // Es mejor tenerlo activo para que nada se mueva atrás
+
         if (_pausePanel != null) _pausePanel.SetActive(true);
 
-        // 1. Si tenías un panel de proyecto abierto, lo cerramos
+        // 1. Cerramos el panel de proyectos (esto ocultará el cursor por un instante)
         UIManager.Instance.ClosePanel();
 
-        // 2. Usamos el método de tu UIManager para liberar el cursor
-        // (Como tu método ManageCursor es privado, podemos llamar a TriggerOnPanelToggled)
+        // 2. Notificamos a los sistemas (PlayerInteraction, etc.)
         UIManager.TriggerOnPanelToggled(true);
+
+        // 3. FORZAMOS el cursor a ser visible DESPUÉS de haber cerrado lo demás
+        UIManager.Instance.ForceCursorState(true);
     }
 
     public void Resume()
     {
         IsPaused = false;
-        Time.timeScale = 1f; // Reanudamos el tiempo
+        Time.timeScale = 1f;
+
         if (_pausePanel != null) _pausePanel.SetActive(false);
         if (_settingsPanel != null) _settingsPanel.SetActive(false);
 
-        // 3. Volvemos al estado de juego (bloquea cursor y avisa al PlayerInteraction)
+        // Volvemos al estado de juego
         UIManager.TriggerOnPanelToggled(false);
+
+        // Aseguramos que el cursor se bloquee de nuevo
+        UIManager.Instance.ForceCursorState(false);
     }
 
     public void GoToMainMenu()
@@ -76,5 +84,21 @@ public class PauseManager : MonoBehaviour
     {
         Application.Quit();
         Debug.Log("Saliendo del juego...");
+    }
+
+    public void OpenSettings()
+    {
+        if (_pausePanel != null) _pausePanel.SetActive(false);
+        if (_settingsPanel != null) _settingsPanel.SetActive(true);
+
+        Debug.Log("Abriendo Ajustes...");
+    }
+
+    public void CloseSettings()
+    {
+        if (_settingsPanel != null) _settingsPanel.SetActive(false);
+        if (_pausePanel != null) _pausePanel.SetActive(true);
+
+        Debug.Log("Volviendo al Menú de Pausa");
     }
 }

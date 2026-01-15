@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Key
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemID: ID_Key1
-  itemName: Key Puerta
-  icon: {fileID: 21300000, guid: b74c31d447d2f5d41a61081bdf5e7126, type: 3}
+  itemName: Key Door
+  icon: {fileID: -1052592807, guid: eaa04d1074340b8429198ca8cd79d3e2, type: 3}
   description: 
-  isConsumable: 1
+  isConsumable: 0

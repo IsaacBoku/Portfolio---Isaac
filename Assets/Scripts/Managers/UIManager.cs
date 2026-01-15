@@ -82,7 +82,7 @@ public class UIManager : MonoBehaviour
     {
         TogglePanel(false);
 
-        Cursor.visible = false;
+        //Cursor.visible = false;
     }
 
     public void DisplayProjectInfo(ProjectData data)
@@ -132,6 +132,11 @@ public class UIManager : MonoBehaviour
 
         // Notificamos a otros sistemas (ej: para pausar el movimiento del jugador)
         OnPanelToggled?.Invoke(isActive);
+    }
+
+    public void ForceCursorState(bool show)
+    {
+        ManageCursor(show);
     }
 
     private void ManageCursor(bool show)
