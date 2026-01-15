@@ -24,6 +24,11 @@ public class UIManager : MonoBehaviour
 
     private StarterAssetsInputs playerInput;
 
+    public static void TriggerOnPanelToggled(bool active)
+    {
+        OnPanelToggled?.Invoke(active);
+    }
+
     private void Awake()
     {
         // Singleton robusto
